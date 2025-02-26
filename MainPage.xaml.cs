@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿using System.Text.RegularExpressions;
+using CommunityToolkit.Maui.Views;
+using MonterdeOCR.Helper;
 using MonterdeOCR.ViewModels;
 using Plugin.Maui.OCR;
 namespace MonterdeOCR
@@ -6,7 +8,8 @@ namespace MonterdeOCR
     public partial class MainPage : ContentPage
     {
         private readonly IOcrService _ocr;
-        public MainPage(MainPageViewModel vm, IOcrService feature)
+        private readonly PlateNumberValidator _validator;
+        public MainPage(MainPageViewModel vm, IOcrService feature, PlateNumberValidator validator)
         {
             InitializeComponent();
             BindingContext = vm;
@@ -37,7 +40,7 @@ namespace MonterdeOCR
 
                     // Display the image using the copied bytes
                     image.Source = ImageSource.FromStream(() => new MemoryStream(imageBytes));
-
+                    
                     // Pass the same bytes to the OCR plugin
                     var ocrResult = await OcrPlugin.Default.RecognizeTextAsync(imageBytes, true);
                     if (!ocrResult.Success)
@@ -45,7 +48,15 @@ namespace MonterdeOCR
                         await DisplayAlert("No Success", "Found Nothing", "Ok");
                         return;
                     }
-                    await DisplayAlert("Success", ocrResult.AllText, "Ok");
+                    string foundPlateNumber = "not found";
+                    foreach (string text in ocrResult.Lines)
+                    {
+                        if (IsValidPlateNumber(text))
+                        {
+                            foundPlateNumber = text;
+                        }
+                    }
+                        await DisplayAlert("Success", foundPlateNumber, "Ok");
                 });
                 return;
             }
@@ -96,7 +107,24 @@ namespace MonterdeOCR
                 await DisplayAlert("Error", ex.Message, "OK");
             }
         }
+        private static bool IsValidPlateNumber(string plateNumber)
+        {
+            // This function can be placed in a helper folder wa lang nako gibutang kay hehe
+            if (string.IsNullOrWhiteSpace(plateNumber))
+                return false;
+            // Normalize input: trim and convert to upper-case for uniformity
+            plateNumber = plateNumber.Trim().ToUpperInvariant();
 
+            // Define regex patterns for each vehicle type
+            string fourWheelPattern = @"^[A-Z]{3}[-\s]?\d{4}$";   // Cars, SUVs, etc.
+            string motorcyclePattern = @"^[A-Z]{2}[-\s]?\d{5}$";  // Motorcycles
+
+            // Check if input matches either pattern
+            bool matchFourWheel = Regex.IsMatch(plateNumber, fourWheelPattern);
+            bool matchMotorcycle = Regex.IsMatch(plateNumber, motorcyclePattern);
+
+            return matchFourWheel || matchMotorcycle;
+        }
     }
 
 }

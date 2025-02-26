@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui;
 using MonterdeOCR.ViewModels;
 using Plugin.Maui.OCR;
+using MonterdeOCR.Helper;
 
 namespace MonterdeOCR
 {
@@ -22,6 +23,7 @@ namespace MonterdeOCR
                 });
 
             builder.Services.AddSingleton<MainPageViewModel>();
+            builder.Services.AddSingleton<PlateNumberValidator>();
             builder.Services.AddTransient<MainPage>();
             return builder.Build();
         }
