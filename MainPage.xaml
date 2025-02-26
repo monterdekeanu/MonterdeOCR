@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:MonterdeOCR.ViewModels"
+             x:Class="MonterdeOCR.MainPage">
+    <ContentPage.BindingContext>
+        <vm:MainPageViewModel/>
+    </ContentPage.BindingContext>
+    
+    <VerticalStackLayout x:Name="containerView">
+        <Grid>
+            <toolkit:CameraView
+    x:Name="Camera"
+    SelectedCamera="{Binding SelectedCamera}"
+    ZoomFactor="{Binding CurrentZoom}">
+            </toolkit:CameraView>
+            <toolkit:DockLayout Opacity="0.4">
+                <VerticalStackLayout toolkit:DockLayout.DockPosition="Left" WidthRequest="40" BackgroundColor="Black"/>
+                <VerticalStackLayout toolkit:DockLayout.DockPosition="Right" WidthRequest="40" BackgroundColor="Black"/>
+                <VerticalStackLayout toolkit:DockLayout.DockPosition="Top" HeightRequest="130"  BackgroundColor="Black"/>
+                <VerticalStackLayout toolkit:DockLayout.DockPosition="Bottom" HeightRequest="130" BackgroundColor="Black"/>
+                <Border BackgroundColor="Transparent" Opacity="1" Stroke="Red" StrokeThickness="4"/>
+            </toolkit:DockLayout>
+        </Grid>
+        <Slider
+            Maximum="{Binding Source={x:Reference Camera}, Path=SelectedCamera.MaximumZoomFactor, FallbackValue=1}"
+            Minimum="{Binding Source={x:Reference Camera}, Path=SelectedCamera.MinimumZoomFactor, FallbackValue=1}"
+            Value="{Binding CurrentZoom, Mode=TwoWay}"/>
+        <Button Clicked="Button_Clicked"  Text="Capture Image"/>
+        <Label x:Name="debugText"/>
+        <Image x:Name="image" HeightRequest="128" WidthRequest="128"/>
+        <Image x:Name="image2" HeightRequest="128" WidthRequest="128"/>
+    </VerticalStackLayout>
+
+</ContentPage>
